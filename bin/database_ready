@@ -1,0 +1,26 @@
+#!/bin/bash
+
+. /etc/profile.d/env.sh
+
+function default_cmd {
+  mysql --user=${DB_USERNAME} --password=${DB_PASSWORD} --host=localhost ${DB_NAME} < /dev/null > /dev/null 2>&1
+}
+
+COMMAND=${1:-default_cmd}
+RETRIES=${2:-60}
+SLEEP_TIME=${3:-1}
+echo "Retrying command: ${COMMAND} with ${RETRIES} retries, sleeping ${SLEEP_TIME} seconds during executions."
+
+until ${COMMAND};
+  do
+    sleep ${SLEEP_TIME}
+    RETRIES=$(( RETRIES - 1 ))
+  if [[ $RETRIES = 0 ]]; then
+    echo "Error: Database did not start!"
+    exit 1;
+  else
+    echo "Polling database ... $RETRIES left"
+  fi
+done
+
+echo "Successfully connected to database"
