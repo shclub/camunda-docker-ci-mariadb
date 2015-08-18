@@ -1,6 +1,6 @@
 # image settings for the docker image name, tags and
 # container name while running
-IMAGE_NAME=camunda-ci1.local:5000/camunda-ci-mariadb
+IMAGE_NAME=ci1.camunda.loc:5000/camunda-ci-mariadb
 TAGS=latest 10.0 10.0.17
 NAME=mariadb
 

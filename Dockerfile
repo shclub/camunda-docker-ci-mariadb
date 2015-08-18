@@ -1,4 +1,4 @@
-FROM camunda-ci1.local:5000/camunda-ci-base-centos:latest
+FROM ci1.camunda.loc:5000/camunda-ci-base-centos:latest
 
 # set environment variables for database
 ENV DB_USERNAME=camunda \
@@ -12,10 +12,10 @@ RUN install-packages.sh libaio net-tools hostname perl-Data-Dumper perl-DBI
 
 # install mysql standard RPMs
 RUN wget -P /tmp/mariadb \
-      ftp://camunda-ci1.local/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-client.rpm \
-      ftp://camunda-ci1.local/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-common.rpm \
-      ftp://camunda-ci1.local/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-server.rpm \
-      ftp://camunda-ci1.local/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-shared.rpm && \
+      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-client.rpm \
+      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-common.rpm \
+      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-server.rpm \
+      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-shared.rpm && \
     rpm -ivh /tmp/mariadb/*.rpm && \
     rm -rf /tmp/mariadb
 
