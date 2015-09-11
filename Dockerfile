@@ -11,11 +11,11 @@ RUN save-env.sh DB_USERNAME DB_PASSWORD DB_NAME MARIADB_VERSION
 RUN install-packages.sh libaio net-tools hostname perl-Data-Dumper perl-DBI
 
 # install mysql standard RPMs
-RUN wget -P /tmp/mariadb \
-      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-client.rpm \
-      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-common.rpm \
-      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-server.rpm \
-      ftp://ci1.camunda.loc/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-shared.rpm && \
+RUN wget --no-check-certificate -P /tmp/mariadb \
+      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-client.rpm \
+      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-common.rpm \
+      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-server.rpm \
+      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-shared.rpm && \
     rpm -ivh /tmp/mariadb/*.rpm && \
     rm -rf /tmp/mariadb
 
