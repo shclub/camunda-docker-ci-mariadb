@@ -11,7 +11,7 @@ RUN save-env.sh DB_USERNAME DB_PASSWORD DB_NAME MARIADB_VERSION
 RUN install-packages.sh libaio net-tools hostname perl-Data-Dumper perl-DBI
 
 # install mysql standard RPMs
-RUN wget --no-check-certificate -P /tmp/mariadb \
+RUN wget -P /tmp/mariadb \
       https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-client.rpm \
       https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-common.rpm \
       https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-server.rpm \
