@@ -22,6 +22,9 @@ RUN wget -P /tmp/mariadb \
 # add scripts
 ADD bin/* /usr/local/bin/
 
+# additional MariaDB configuration
+ADD etc/my.cnf.d/* /etc/my.cnf.d/
+
 # add mariadb user and create database
 RUN /etc/init.d/mysql start && \
     mysql -u root -e "DELETE FROM user WHERE user=''; FLUSH PRIVILEGES;" mysql && \
