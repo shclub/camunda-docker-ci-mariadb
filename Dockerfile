@@ -4,8 +4,9 @@ FROM registry.camunda.com/camunda-ci-base-centos:latest
 ENV DB_USERNAME=camunda \
     DB_PASSWORD=camunda \
     DB_NAME=process-engine \
-    MARIADB_VERSION=10.0.17
-RUN save-env.sh DB_USERNAME DB_PASSWORD DB_NAME MARIADB_VERSION
+    MARIADB_VERSION=10.0.17 \
+    TRANSACTION_ISOLATION_LEVEL=REPEATABLE-READ
+RUN save-env.sh DB_USERNAME DB_PASSWORD DB_NAME MARIADB_VERSION TRANSACTION_ISOLATION_LEVEL
 
 # install required packages
 RUN install-packages.sh libaio net-tools hostname perl-Data-Dumper perl-DBI
@@ -21,9 +22,6 @@ RUN wget -P /tmp/mariadb \
 
 # add scripts
 ADD bin/* /usr/local/bin/
-
-# additional MariaDB configuration
-ADD etc/my.cnf.d/* /etc/my.cnf.d/
 
 # add mariadb user and create database
 RUN /etc/init.d/mysql start && \
