@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/bin/mysqld_safe ${TRANSACTION_LEVEL} ${MARIADB_OPTS}

@@ -1,0 +1,6 @@
+
+timeout: 1800s
+steps:
+- name: gcr.io/cloud-builders/docker
+  args: ['build', '--no-cache', '-t', 'gcr.io/$PROJECT_ID/mariadb:$TAG_NAME', '--build-arg', 'TAG_NAME=$TAG_NAME', '.']
+images: ['gcr.io/${PROJECT_ID}/mariadb:$TAG_NAME']

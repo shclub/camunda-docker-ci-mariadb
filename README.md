@@ -25,5 +25,11 @@ docker run -d -p 3306:3306 camunda/camunda-ci-mariadb
 mysql -u camunda -p -h 127.0.0.1
 ```
 
+# Check Galera Cluster status
+
+  * connect to cluster with mysql client
+  * execute
+    ```SHOW GLOBAL STATUS LIKE 'wsrep_%';```
+
 
 [camunda-ci-base-centos]: https://github.com/camunda-ci/camunda-docker-ci-base-centos

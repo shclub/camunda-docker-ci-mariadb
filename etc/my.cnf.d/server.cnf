@@ -1,0 +1,42 @@
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+bind-address=0.0.0.0
+
+#
+# Galera-related settings
+#
+[galera]
+# Mandatory settings
+binlog_format=row
+default_storage_engine=InnoDB
+innodb_autoinc_lock_mode=2
+# see http://galeracluster.com/documentation-webpages/isolationlevels.html
+transaction-isolation=READ-COMMITTED
+wsrep_on=ON
+wsrep_causal_reads = 1
+wsrep_sync_wait = 7
+wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+wsrep_cluster_address=gcomm://
+
+# optional settings for galera
+# defaults to 128M
+innodb_buffer_pool_size=122M
+wsrep_cluster_name="camunda_ci_galera"
+
+
+# Optional setting
+#wsrep_slave_threads=1
+#innodb_flush_log_at_trx_commit=0
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+# This group is only read by MariaDB-10.1 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.1]

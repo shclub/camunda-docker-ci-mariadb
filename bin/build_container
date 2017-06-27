@@ -1,0 +1,73 @@
+#!/bin/bash
+
+GOOGLE_STORAGE_BUCKET=camunda-ops
+MARIADB_VERSION=$(echo $TAG_NAME | tail -n1 | awk -F'v' '{print $1}' )
+RC=${RC:-/etc/profile.d/env.sh}
+
+echo "Building container for version "${MARIADB_VERSION}
+PATH=/opt/google-cloud-sdk/bin:$PATH
+
+init_db() {
+  /etc/init.d/mysql start
+  mysql -u root -e "DELETE FROM user WHERE user=''; FLUSH PRIVILEGES;" mysql
+  mysql -u root -e "GRANT ALL ON *.* TO '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+  mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+  mysql -u root -e "DROP DATABASE test"
+  /etc/init.d/mysql stop
+}
+
+# Setup MariaDB
+setup_10() {
+  mkdir -p /tmp/mariadb
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-common.rpm /tmp/mariadb/mariadb-common.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-server.rpm /tmp/mariadb/mariadb-server.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+}
+
+# Install MariaDB
+install_10() {
+  rpm -ivh /tmp/mariadb/*.rpm
+  rm -rf /tmp/mariadb
+
+  init_db
+}
+
+setup_galera() {
+  mkdir -p /tmp/mariadb
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/galera-25.rpm /tmp/mariadb/galera.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/jemalloc-3.6.rpm /tmp/mariadb/jemalloc.rpm
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-client.rpm /tmp/mariadb/mariadb-client.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-common.rpm /tmp/mariadb/mariadb-common.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-server.rpm /tmp/mariadb/mariadb-server.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+}
+
+install_galera() {
+  rpm -ivh /tmp/mariadb/*.rpm
+  mv /tmp/my.cnf.d/* /etc/my.cnf.d
+  rm -rf /tmp/mariadb
+
+  init_db
+}
+
+bootstrap() {
+  case ${MARIADB_VERSION} in
+    10)
+      echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_MARIADB}" >> $RC && source $RC
+      setup_10 && install_10
+      ;;
+    g25)
+      echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_GALERA}" >> $RC && source $RC
+      setup_galera && install_galera
+      ;;
+  esac
+}
+
+
+bootstrap
+
+echo "export TRANSACTION_LEVEL='--transaction-isolation=${TRANSACTION_ISOLATION_LEVEL}'" >> $RC

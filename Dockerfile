@@ -1,38 +1,34 @@
-FROM registry.camunda.com/camunda-ci-base-centos:latest
+FROM gcr.io/ci-30-162810/centos:v0.1.4
+
+ARG TAG_NAME
 
 # set environment variables for database
 ENV DB_USERNAME=camunda \
     DB_PASSWORD=camunda \
     DB_NAME=process-engine \
-    MARIADB_VERSION=10.0.17 \
-    TRANSACTION_ISOLATION_LEVEL=REPEATABLE-READ
-RUN save-env.sh DB_USERNAME DB_PASSWORD DB_NAME MARIADB_VERSION TRANSACTION_ISOLATION_LEVEL
+    TRANSACTION_ISOLATION_LEVEL_MARIADB=REPEATABLE-READ \
+    TRANSACTION_ISOLATION_LEVEL_GALERA=READ-COMMITTED
+
+RUN save-env.sh DB_USERNAME DB_PASSWORD DB_NAME TRANSACTION_ISOLATION_LEVEL_MARIADB TRANSACTION_ISOLATION_LEVEL_GALERA
 
 # install required packages
-RUN install-packages.sh libaio net-tools hostname perl-Data-Dumper perl-DBI
-
-# install mysql standard RPMs
-RUN wget -P /tmp/mariadb \
-      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-client.rpm \
-      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-common.rpm \
-      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-server.rpm \
-      https://nginx.service.consul/ci/binaries/mariadb/MariaDB-${MARIADB_VERSION}-centos7-x86_64-shared.rpm && \
-    rpm -ivh /tmp/mariadb/*.rpm && \
-    rm -rf /tmp/mariadb
+RUN install-packages.sh boost-program-options \
+                        hostname \
+                        iproute \
+                        libaio \
+                        lsof \
+                        net-tools \
+                        perl-Data-Dumper \
+                        perl-DBI \
+                        openssl
 
 # add scripts
 ADD bin/* /usr/local/bin/
 
-# add mariadb user and create database
-RUN /etc/init.d/mysql start && \
-    mysql -u root -e "DELETE FROM user WHERE user=''; FLUSH PRIVILEGES;" mysql && \
-    mysql -u root -e "GRANT ALL ON *.* TO '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;" && \
-    mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;" && \
-    mysql -u root -e "DROP DATABASE test" && \
-    /etc/init.d/mysql stop
-
 # add mysql service to supervisor config
 ADD etc/supervisord.d/* /etc/supervisord.d/
+ADD etc/my.cnf.d/* /tmp/my.cnf.d/
 
-# expose mysql port
-EXPOSE 3306
+RUN build_container
+
+EXPOSE 3306 4567 4568 4444
