@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: master1
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: master1
+    spec:
+      containers:
+      - env:
+        - name: MARIADB_OPTS
+          value: --wsrep-new-cluster --wsrep-node-address=master1
+        image: gcr.io/ci-30-162810/mariadb:g25v0.1.0
+        name: master1
+        ports:
+        - containerPort: 3306
+        - containerPort: 4567
+        - containerPort: 4568
+        - containerPort: 4444
+        resources:
+          limits:
+            memory: "4294967296"
+        tty: true
+      restartPolicy: Always
+status: {}

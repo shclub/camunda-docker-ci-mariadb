@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: slave1
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: slave1
+    spec:
+      containers:
+      - env:
+        - name: MARIADB_OPTS
+          value: --wsrep_cluster_address=gcomm://master1 --wsrep-node-address=slave1
+        image: gcr.io/ci-30-162810/mariadb:g25v0.1.0
+        name: slave1
+        ports:
+        - containerPort: 3306
+        - containerPort: 4567
+        - containerPort: 4568
+        - containerPort: 4444
+        resources:
+          limits:
+            memory: "4294967296"
+        tty: true
+      restartPolicy: Always
+status: {}

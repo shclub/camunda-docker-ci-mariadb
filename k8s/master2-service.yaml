@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: master2
+  name: master2
+spec:
+  ports:
+  - name: "13306"
+    port: 13306
+    targetPort: 3306
+  selector:
+    io.kompose.service: master2
+status:
+  loadBalancer: {}

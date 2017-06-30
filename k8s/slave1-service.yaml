@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: slave1
+  name: slave1
+spec:
+  ports:
+  - name: "33306"
+    port: 33306
+    targetPort: 3306
+  - name: "34567"
+    port: 34567
+    targetPort: 4567
+  - name: "34568"
+    port: 34568
+    targetPort: 4568
+  - name: "34444"
+    port: 34444
+    targetPort: 4444
+  selector:
+    io.kompose.service: slave1
+status:
+  loadBalancer: {}

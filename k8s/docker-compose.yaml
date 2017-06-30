@@ -1,8 +1,8 @@
 master1:
-        image: gcr.io/ci-30-162810/mariadb:g25v0.1.1
+        image: gcr.io/ci-30-162810/mariadb:g25v0.1.0
         container_name: master1
         environment:
-                - MARIADB_OPTS=--wsrep-new-cluster --wsrep-node-address=master
+                - MARIADB_OPTS=--wsrep-new-cluster --wsrep-node-address=master1
         ports:
                 - "3306:3306"
                 - "4567:4567"
@@ -12,7 +12,7 @@ master1:
         tty: true
 
 master2:
-        image: gcr.io/ci-30-162810/mariadb:g25v0.1.1
+        image: gcr.io/ci-30-162810/mariadb:g25v0.1.0
         container_name: master2
         environment:
                 - MARIADB_OPTS=--wsrep_cluster_address=gcomm://master1
@@ -24,7 +24,7 @@ master2:
         tty: true
 
 slave1:
-        image: gcr.io/ci-30-162810/mariadb:g25v0.1.1
+        image: gcr.io/ci-30-162810/mariadb:g25v0.1.0
         container_name: slave1
         environment:
                 - MARIADB_OPTS=--wsrep_cluster_address=gcomm://master1 --wsrep-node-address=slave1
