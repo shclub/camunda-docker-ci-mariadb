@@ -4,4 +4,5 @@ if [ -n "$BOOT_TIMEOUT" ]; then
   sleep $BOOT_TIMEOUT
 fi
 
-/bin/mysqld_safe ${TRANSACTION_LEVEL} ${MARIADB_OPTS}
+#/bin/mysqld_safe ${TRANSACTION_LEVEL} ${MARIADB_OPTS}
+/usr/sbin/mysqld ${TRANSACTION_LEVEL} ${MARIADB_OPTS} --user=mysql

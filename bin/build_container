@@ -20,10 +20,20 @@ init_db() {
 setup_10() {
   mkdir -p /tmp/mariadb
 
-  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
-  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-common.rpm /tmp/mariadb/mariadb-common.rpm
-  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-server.rpm /tmp/mariadb/mariadb-server.rpm
-  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/mariadb-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.0/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.0/mariadb-common.rpm /tmp/mariadb/mariadb-common.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.0/mariadb-server.rpm /tmp/mariadb/mariadb-server.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.0/mariadb-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+}
+setup_10_2() {
+  mkdir -p /tmp/mariadb
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-common.rpm /tmp/mariadb/mariadb-common.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-server.rpm /tmp/mariadb/mariadb-server.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-compat.rpm /tmp/mariadb/mariadb-compat.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-galera.rpm /tmp/mariadb/mariadb-galera.rpm
 }
 
 # Install MariaDB
@@ -60,6 +70,11 @@ bootstrap() {
       echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_MARIADB}" >> $RC && source $RC
       setup_10 && install_10
       ;;
+    10.2)
+      echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_MARIADB}" >> $RC && source $RC
+      setup_10_2 && install_10
+      ;;
+
     g25)
       echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_GALERA}" >> $RC && source $RC
       setup_galera && install_galera
