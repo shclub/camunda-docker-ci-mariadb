@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 GOOGLE_STORAGE_BUCKET=camunda-ops
 MARIADB_VERSION=$(echo $TAG_NAME | tail -n1 | awk -F'v' '{print $1}' )
@@ -17,7 +17,7 @@ init_db() {
 }
 
 # Setup MariaDB
-setup_10() {
+setup_10_0() {
   mkdir -p /tmp/mariadb
 
   gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.0/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
@@ -66,23 +66,16 @@ install_galera() {
 
 bootstrap() {
   case ${MARIADB_VERSION} in
-    10)
-      echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_MARIADB}" >> $RC && source $RC
-      setup_10 && install_10
+    10.0*)
+      setup_10_0 && install_10
       ;;
-    10.2)
-      echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_MARIADB}" >> $RC && source $RC
+    10.2*)
       setup_10_2 && install_10
       ;;
-
-    g25)
-      echo "export TRANSACTION_ISOLATION_LEVEL=${TRANSACTION_ISOLATION_LEVEL_GALERA}" >> $RC && source $RC
+    g2*)
       setup_galera && install_galera
       ;;
   esac
 }
 
-
 bootstrap
-
-echo "export TRANSACTION_LEVEL='--transaction-isolation=${TRANSACTION_ISOLATION_LEVEL}'" >> $RC
