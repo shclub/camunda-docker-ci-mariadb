@@ -35,6 +35,16 @@ setup_10_2() {
   gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-compat.rpm /tmp/mariadb/mariadb-compat.rpm
   gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.2/mariadb-galera.rpm /tmp/mariadb/mariadb-galera.rpm
 }
+setup_10_3() {
+  mkdir -p /tmp/mariadb
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.3/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.3/mariadb-common.rpm /tmp/mariadb/mariadb-common.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.3/mariadb-server.rpm /tmp/mariadb/mariadb-server.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.3/mariadb-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.3/mariadb-compat.rpm /tmp/mariadb/mariadb-compat.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/10.3/mariadb-galera.rpm /tmp/mariadb/mariadb-galera.rpm
+}
 
 # Install MariaDB
 install_10() {
@@ -72,9 +82,14 @@ bootstrap() {
     10.2*)
       setup_10_2 && install_10
       ;;
+    10.3*)
+      setup_10_3 && install_10
+      ;;
     g2*)
       setup_galera && install_galera
       ;;
+    *)
+      exit -1
   esac
 }
 
