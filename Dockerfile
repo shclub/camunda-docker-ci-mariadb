@@ -1,4 +1,4 @@
-FROM gcr.io/ci-30-162810/centos:v0.3.3
+FROM gcr.io/ci-30-162810/centos:v0.4.0
 
 ARG TAG_NAME
 
