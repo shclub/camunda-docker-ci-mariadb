@@ -1,6 +1,8 @@
-FROM gcr.io/ci-30-162810/centos:v0.3.0
+FROM gcr.io/ci-30-162810/centos:v0.3.3
 
 ARG TAG_NAME
+
+RUN [ ! -z "${TAG_NAME}" ] || { echo "Please specify a tag name using TAG_NAME build arg"; exit 1; }
 
 # set environment variables for database
 ENV DB_USERNAME=camunda \
@@ -29,6 +31,6 @@ ADD bin/* /usr/local/bin/
 ADD etc/supervisord.d/* /etc/supervisord.d/
 ADD etc/my.cnf.d/* /tmp/my.cnf.d/
 
-RUN build_container
+RUN /usr/local/bin/database_install
 
 EXPOSE 3306 4567 4568 4444

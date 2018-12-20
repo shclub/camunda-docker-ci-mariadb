@@ -1,0 +1,84 @@
+#!/bin/bash
+set -euxo pipefail
+
+declare -r GOOGLE_STORAGE_BUCKET=camunda-ops
+declare -r MARIADB_VERSION=$(echo $TAG_NAME | tail -n1 | awk -F'v|-|_' '{print $1}' )
+
+function init_db() {
+  /etc/init.d/mysql start
+  mysql -u root -e "DELETE FROM user WHERE user=''; FLUSH PRIVILEGES;" mysql
+  mysql -u root -e "GRANT ALL ON *.* TO '${DB_USERNAME}'@'%' IDENTIFIED BY '${DB_PASSWORD}' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+  mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+  mysql -u root -e "DROP DATABASE test"
+  /etc/init.d/mysql stop
+}
+
+function retrieve_files() {
+    local version="${1}"
+
+    mkdir -p /tmp/mariadb
+
+    gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/${version}/mariadb-client.rpm /tmp/mariadb/mariadb-client.rpm
+    gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/${version}/mariadb-common.rpm /tmp/mariadb/mariadb-common.rpm
+    gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/${version}/mariadb-server.rpm /tmp/mariadb/mariadb-server.rpm
+    gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/${version}/mariadb-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+
+    case ${version} in
+        10.3* | 10.2*)
+            gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/${version}/mariadb-compat.rpm /tmp/mariadb/mariadb-compat.rpm
+            gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/${version}/mariadb-galera.rpm /tmp/mariadb/mariadb-galera.rpm
+        ;;
+    esac
+}
+
+function install_mariadb() {
+  rpm -ivh /tmp/mariadb/*.rpm
+  rm -rf /tmp/mariadb
+
+  init_db
+}
+
+function retrieve_files_galera_10_1() {
+  mkdir -p /tmp/mariadb
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/galera-25.rpm /tmp/mariadb/galera.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/jemalloc-3.6.rpm /tmp/mariadb/jemalloc.rpm
+
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-client.rpm /tmp/mariadb/mariadb-client.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-common.rpm /tmp/mariadb/mariadb-common.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-server.rpm /tmp/mariadb/mariadb-server.rpm
+  gsutil cp gs://${GOOGLE_STORAGE_BUCKET}/binaries/mariadb/galera/mariadb-10.1-shared.rpm /tmp/mariadb/mariadb-shared.rpm
+}
+
+function install_galera() {
+  rpm -ivh /tmp/mariadb/*.rpm
+  mv /tmp/my.cnf.d/* /etc/my.cnf.d
+  rm -rf /tmp/mariadb
+
+  init_db
+}
+
+function main() {
+  echo "Building container for version ${MARIADB_VERSION}"
+
+  case ${MARIADB_VERSION} in
+    latest)
+      retrieve_files 10.3
+      install_mariadb
+      ;;
+    10.3* | 10.2* | 10.0*)
+      retrieve_files ${MARIADB_VERSION}
+      install_mariadb
+      ;;
+    g2*)
+      retrieve_files_galera_10_1
+      install_galera
+      ;;
+    *)
+      echo "Unknown version ${MARIADB_VERSION}. Exiting."
+      exit -1
+	  ;;
+  esac
+}
+
+main

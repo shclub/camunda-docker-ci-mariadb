@@ -4,7 +4,7 @@
 
 DEFAULT_CLUSTER_SIZE=${CLUSTER_SIZE:-3}
 
-function default_cmd {
+function default_cmd() {
   cluster_size=$(mysql --user=${DB_USERNAME} --password=${DB_PASSWORD} --host=localhost ${DB_NAME} \
     -sNe 'SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME="wsrep_cluster_size"' 2>&1)
   case ${cluster_size} in
@@ -12,7 +12,7 @@ function default_cmd {
       return 1
       ;;
     *)
-      if [[ $cluster_size == $DEFAULT_CLUSTER_SIZE ]];
+      if [[ ${cluster_size} == ${DEFAULT_CLUSTER_SIZE} ]];
       then
         echo "Cluster size: ${cluster_size}"
         return 0
@@ -32,11 +32,11 @@ until ${COMMAND};
   do
     sleep ${SLEEP_TIME}
     RETRIES=$(( RETRIES - 1 ))
-  if [[ $RETRIES = 0 ]]; then
+  if [[ ${RETRIES} = 0 ]]; then
     echo "Error: Database did not start!"
     exit 1;
   else
-    echo "Polling database ... $RETRIES left"
+    echo "Polling database ... ${RETRIES} left"
   fi
 done
 
