@@ -1,31 +1,33 @@
-camunda-docker-ci-mariadb
-=========================
+# camunda-docker-ci-mariadb
 
 MariaDB docker image for Jenkins CI builds base on [camunda-ci-base-centos][].
 
-# Additional Packages
+## Additional Packages
 
-  - mariadb server
+- mariadb server
 
-# MariaDB User
+## MariaDB User
 
-  - `root` without password
-  - `camunda` with password `camunda`
+- `root` without password
+- `camunda` with password `camunda`
 
-# Database
+## Database
 
-  - `process-engine`
+- `process-engine`
 
-# Usage (local)
+## Usage (local)
 
 ```
-# Start docker container
-docker run -d -p 3306:3306 camunda/camunda-ci-mariadb
-# Connect to docker mariadb (password: camunda)
-mysql -u camunda -p -h 127.0.0.1
+make daemon
 ```
 
-# Check Galera Cluster status
+## Build and test all MariaDB versions
+
+```
+make build-all
+```
+
+## Check Galera Cluster status
 
   * connect to cluster with mysql client
   * execute

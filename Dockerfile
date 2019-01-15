@@ -24,12 +24,11 @@ RUN install-packages.sh boost-program-options \
                         perl-DBI \
                         openssl
 
-# add scripts
-ADD bin/* /usr/local/bin/
+COPY bin/* /usr/local/bin/
 
 # add mysql service to supervisor config
-ADD etc/supervisord.d/* /etc/supervisord.d/
-ADD etc/my.cnf.d/* /tmp/my.cnf.d/
+COPY etc/supervisord.d/* /etc/supervisord.d/
+COPY etc/my.cnf.d/* /tmp/my.cnf.d/
 
 RUN /usr/local/bin/database_install
 

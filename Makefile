@@ -1,9 +1,12 @@
 .DEFAULT_GOAL:=help
-# image settings for the docker image name, tags and
-# container name while running
+# image settings for the docker image name, tags and container name while running
 IMAGE_NAME?=gcr.io/ci-30-162810/mariadb
 TAGS?=latest
 NAME=ci-mariadb
+
+MARIADB_VERSIONS=10.3 10.2 10.0 g25
+BUILD_VERSIONS=$(addprefix build-,$(MARIADB_VERSIONS))
+PUSH_VERSIONS=$(addprefix push-,$(MARIADB_VERSIONS))
 
 # parent image name
 FROM=$(shell head -n1 Dockerfile | cut -d " " -f 2)
@@ -27,9 +30,10 @@ build: pull-from pull build-image test ## build the image for the first tag and 
 
 .PHONY: build-image
 build-image: ## build the image
+	@echo "Building MariaDB image $(TAGS)"
 	$(DOCKER) build --rm=$(REMOVE) --force-rm=$(FORCE_RM) --no-cache=$(NO_CACHE) --build-arg TAG_NAME=$(TAGS) -t $(IMAGE) .
 	@for tag in $(ADDITIONAL_TAGS); do \
-		$(DOCKER) tag $(FORCE_FLAG) $(IMAGE) $(IMAGE_NAME):$$tag; \
+		$(DOCKER) tag $(IMAGE) $(IMAGE_NAME):$$tag; \
 	done
 
 .PHONY: pull
@@ -42,12 +46,24 @@ pull-from: ## pull parent image
 
 .PHONY: push
 push: ## push container to registry
+	@echo "Pushing MariaDB image $(TAGS)"
 	@for tag in $(TAGS); do \
 		$(DOCKER) push $(IMAGE_NAME):$$tag; \
 	done
 
-.PHONY: publish
-publish: build-image push ## pull parent image, pull image, build image and push to repository
+.PHONY: build-all
+build-all: $(BUILD_VERSIONS) ## build Docker image for every MariaDB version
+
+.PHONY: build-%s
+build-%:
+	make build TAGS=$*v$(FIRST_TAG)
+
+.PHONY: push-all
+push-all: $(PUSH_VERSIONS) ## push Docker image for every MariaDB version
+
+.PHONY: push-%s
+push-%:
+	make push TAGS=$*v$(FIRST_TAG)
 
 .PHONY: run
 run: ## run container
