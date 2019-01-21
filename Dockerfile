@@ -1,4 +1,4 @@
-FROM gcr.io/ci-30-162810/centos:v0.4.0
+FROM gcr.io/ci-30-162810/centos:v0.4.1
 
 ARG TAG_NAME
 
@@ -25,8 +25,6 @@ RUN install-packages.sh boost-program-options \
                         openssl
 
 COPY bin/* /usr/local/bin/
-
-# add mysql service to supervisor config
 COPY etc/supervisord.d/* /etc/supervisord.d/
 COPY etc/my.cnf.d/* /tmp/my.cnf.d/
 
