@@ -4,9 +4,9 @@ IMAGE_NAME?=gcr.io/ci-30-162810/mariadb
 TAGS?=latest
 NAME=ci-mariadb
 
-MARIADB_VERSIONS=10.3 10.2 10.0 g25
-BUILD_VERSIONS=$(addprefix build-,$(MARIADB_VERSIONS))
-PUSH_VERSIONS=$(addprefix push-,$(MARIADB_VERSIONS))
+VERSIONS=10.3 10.2 10.0 g25
+BUILD_VERSIONS=$(addprefix build-,$(VERSIONS))
+PUSH_VERSIONS=$(addprefix push-,$(VERSIONS))
 
 # parent image name
 FROM=$(shell head -n1 Dockerfile | cut -d " " -f 2)
@@ -64,6 +64,13 @@ push-all: $(PUSH_VERSIONS) ## push Docker image for every MariaDB version
 .PHONY: push-%s
 push-%:
 	make push TAGS=$*v$(FIRST_TAG)
+
+.PHONY: tag-all
+tag-all:
+	@for version in $(VERSIONS); do \
+		echo "Tagging: $${version}$(FIRST_TAG)"; \
+		git tag -a -f -m "$${version}$(FIRST_TAG)" $${version}$(FIRST_TAG); \
+	done
 
 .PHONY: run
 run: ## run container
